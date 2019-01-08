@@ -129,6 +129,7 @@ update.on('click', function () {
 
 			$('#ethBalance').text('以太帳戶餘額 (wei): ' + result.ethBalance)
 			$('#bankBalance').text('銀行ETH餘額 (wei): ' + result.bankBalance)
+			$('#coinBalance').text('NCCU COIN餘額: ' + result.coinBalance)
 		})
 	}
 	else {
@@ -137,6 +138,7 @@ update.on('click', function () {
 		}, function (result) {
 			$('#ethBalance').text('以太帳戶餘額 (wei): ' + result.ethBalance)
 			$('#bankBalance').text('銀行ETH餘額 (wei): ')
+			$('#coinBalance').text('NCCU COIN餘額: ')
 		})
 	}
 })
@@ -468,10 +470,6 @@ transferOwnerButton.on('click', async function () {
 // 轉帳 ETH(進階功能)
 transferToButton.on('click', async function () {
 
-	if (bankAddress == "") {
-		return;
-	}
-
 	// 解鎖
 	let unlock = await unlockAccount();
 	if (!unlock) {
@@ -486,8 +484,11 @@ transferToButton.on('click', async function () {
 		account: nowAccount,
 		value: parseInt(transferToValue.val(), 10)
 	}, function (result) {
-		if (result.events !== undefined) {
-			log(result.events.TransferOwnerEvent.returnValues, '轉移成功')
+		if (result.status) {
+			log(result, '轉移成功')
+
+			// 觸發更新帳戶資料
+			update.trigger('click')
 
 			// 更新介面 
 			doneTransactionStatus()

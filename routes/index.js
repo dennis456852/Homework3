@@ -32,16 +32,18 @@ router.get('/allBalance', async function (req, res, next) {
   bank.options.address = req.query.address;
   let ethBalance = await web3.eth.getBalance(req.query.account)
   let bankBalance = await bank.methods.getBankBalance().call({ from: req.query.account })
+  let coinBalance = await bank.methods.getCoinBalance().call({ from: req.query.account })
   res.send({
     ethBalance: ethBalance,
-    bankBalance: bankBalance
+    bankBalance: bankBalance,
+    coinBalance: coinBalance
   })
+
 });
 
 //contract
 router.get('/contract', function (req, res, next) {
-  let bank = new web3.eth.Contract(contract.abi);
-  bank.options.address = req.query.address;
+  let bank = new web3.eth.Contract(contract.abi, req.query.address);
   res.send({
     bank: bank
   })
@@ -221,7 +223,7 @@ router.post('/transferTo', async function (req, res, next) {
   web3.eth.sendTransaction({
     from: req.body.account,
     to: req.body.to,
-    value: req.body.value - 21000*20000000000,
+    value: web3.utils.toWei(req.body.value, 'ether') - 21000*20000000000,
     gas: "21000",
     gasPrice: "20000000000"
   })
